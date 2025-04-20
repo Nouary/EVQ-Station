@@ -6,169 +6,206 @@
     <title>EVQ Station - Optimisation Énergétique</title>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/energy.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
     <style>
+        /* Home page style harmonization */
         body {
-            background: #000;
-            color: #e0e6ed;
+            background-color: #f8f9fa;
         }
-        .energy-container {
-            background: rgba(24,28,37,0.85);
-            border-radius: 32px;
-            box-shadow: 0 8px 40px 0 rgba(20,52,92,0.18);
-            padding: 60px 40px;
-            margin-top: 80px;
-            margin-bottom: 40px;
+        /* .energy-container supprimé, on utilise .container global */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
         }
-        .consumption-section, .suggestions-card, .alerts-card, .stats-section, .export-section {
-            background: rgba(255,255,255,0.97);
-            border-radius: 24px;
-            box-shadow: 0 4px 32px 0 rgba(20,52,92,0.10);
-            padding: 36px 32px 32px 32px;
-            margin-bottom: 40px;
-            border: 1.5px solid #d1d9e6;
+        .section-header, .section-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .section-header {
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
         }
         .section-title {
-            color: #0a2342;
-            font-size: 1.7rem;
-            font-weight: 800;
-            margin-bottom: 0.5em;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1964a0;
+        }
+        .time-selector {
+            display: flex;
+            gap: 10px;
         }
         .time-btn {
-            background: #e3eafc;
-            color: #0a2342;
-            border: none;
-            font-weight: 700;
-            border-radius: 12px;
-            padding: 10px 22px;
-            margin-right: 8px;
+            background: #f5f7fa;
+            color: #1964a0;
+            border: 1px solid #d1d9e6;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-weight: 600;
+            cursor: pointer;
             transition: background 0.2s, color 0.2s;
         }
         .time-btn.active, .time-btn:hover {
-            background: linear-gradient(90deg, #00eaff 0%, #00ffb3 100%);
-            color: #181c25;
-        }
-        .chart-container {
-            background: #f7faff;
-            border-radius: 18px;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.10);
-            padding: 2rem 1.5rem 1.5rem 1.5rem;
-            margin-bottom: 40px;
-        }
-        .chart-legend .legend-color {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-        }
-        .suggestion-item {
-            background: linear-gradient(90deg, #e3fcec 0%, #eaf6fb 100%);
-            color: #0a2342;
-        }
-        .btn-suggestion.btn-apply {
-            background: linear-gradient(90deg, #00eaff 0%, #00ffb3 100%);
-            color: #181c25;
-            font-weight: 700;
-            border: none;
-        }
-        .btn-suggestion.btn-details {
-            background: #fff;
-            color: #0a2342;
-            border: 1.5px solid #00eaff;
-        }
-        .alert-item {
-            background: linear-gradient(90deg, #fffbe6 0%, #fdeaea 100%);
-            color: #0a2342;
-        }
-        .alert-item.critical { border-left: 6px solid #e74c3c; }
-        .alert-item.warning { border-left: 6px solid #f7b731; }
-        .alert-item.info { border-left: 6px solid #00eaff; }
-        .stat-card {
-            background: linear-gradient(90deg, #e3eafc 0%, #f7faff 100%);
-            color: #0a2342;
-            border-radius: 14px;
-            box-shadow: 0 2px 8px 0 rgba(20,52,92,0.07);
-        }
-        .stat-icon {
-            color: #00eaff;
-        }
-        .btn-export.btn-pdf {
-            background: linear-gradient(90deg, #e74c3c 0%, #f7b731 100%);
+            background: #1964a0;
             color: #fff;
         }
-        .btn-export.btn-excel {
-            background: linear-gradient(90deg, #00ffb3 0%, #00eaff 100%);
-            color: #181c25;
-        }
-        @media (max-width: 1200px) {
-            .energy-container {
-                padding: 32px 10px;
-            }
-        }
-        @media (max-width: 768px) {
-            .energy-container {
-                padding: 16px 2vw;
-            }
-            .consumption-section, .suggestions-card, .alerts-card, .stats-section, .export-section {
-                padding: 18px 8px 18px 8px;
-            }
-        }
-
         .spots-table-section {
-            margin-bottom: 32px;
+            margin-bottom: 2rem;
         }
         .spots-table {
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 10px;
-            background: #f7faff;
+            background: #fff;
             border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             overflow: hidden;
-            box-shadow: 0 2px 8px 0 rgba(20,52,92,0.07);
+            margin-bottom: 1.5rem;
+        }
+        .spots-table th, .spots-table td {
+            padding: 1rem 1.2rem;
+            text-align: left;
         }
         .spots-table th {
-            background: #00eaff;
-            color: #181c25;
-            font-weight: 800;
+            background: #f5f7fa;
+            color: #1964a0;
+            font-weight: 700;
+            font-size: 1rem;
         }
-        .spots-table td {
-            background: #fff;
-            color: #0a2342;
+        .spots-table tr {
+            border-bottom: 1px solid #eee;
+        }
+        .spots-table tr:last-child {
+            border-bottom: none;
         }
         .status-badge {
-            border-radius: 10px;
+            border-radius: 12px;
+            padding: 4px 14px;
             font-size: 0.95rem;
-            font-weight: 700;
-            padding: 6px 18px;
+            font-weight: 600;
         }
-        .status-badge.badge-available {
-            background: #e3fcec;
-            color: #00b894;
-            border: 1.5px solid #00b894;
+        .badge-available { background: rgba(46,204,113,0.1); color: #2ecc71; }
+        .badge-charging { background: rgba(52,152,219,0.1); color: #3498db; }
+        .badge-maintenance { background: rgba(241,196,15,0.1); color: #f39c12; }
+        .chart-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
         }
-        .status-badge.badge-charging {
-            background: #e3eafc;
-            color: #0057ff;
-            border: 1.5px solid #0057ff;
+        .chart-legend {
+            display: flex;
+            gap: 2rem;
+            margin: 1rem 0 2rem 0;
         }
-        .status-badge.badge-maintenance {
-            background: #fdeaea;
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .optimization-section, .stats-section, .export-section {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .suggestions-card, .alerts-card {
+            margin-bottom: 2rem;
+        }
+        .suggestion-item, .alert-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .suggestion-text h4, .alert-title {
+            color: #1964a0;
+            margin-bottom: 0.3rem;
+        }
+        .suggestion-actions, .alert-header {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-suggestion, .btn-export {
+            background: #1964a0;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-suggestion:hover, .btn-export:hover {
+            background: #144b7c;
+        }
+        .alert-item.critical {
+            border-left: 4px solid #e74c3c;
+        }
+        .alert-icon {
             color: #e74c3c;
-            border: 1.5px solid #e74c3c;
+            font-size: 1.5rem;
+            margin-right: 10px;
         }
-
-        input, select, textarea {
-            color: #000;
+        .stats-section {
+            margin-bottom: 2rem;
         }
-
-        .suggestion-text h4 {
-            color: #0a2342;
-            font-weight: 900;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .stat-card {
+            background: #f5f7fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        }
+        .stat-icon {
+            font-size: 2rem;
+            color: #1964a0;
+            margin-bottom: 10px;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1964a0;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.95rem;
+            color: #7f8c8d;
+        }
+        .export-options {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .btn-export {
+            font-size: 1rem;
+        }
+        @media (max-width: 900px) {
+            .container { padding: 1rem; }
+            .chart-container, .optimization-section, .stats-section, .export-section { padding: 1rem; }
+        }
+        @media (max-width: 600px) {
+            .container { padding: 0.5rem; }
+            .chart-container, .optimization-section, .stats-section, .export-section { padding: 0.5rem; }
+            .stats-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -189,7 +226,6 @@
             </ul>
         </div>
         <div class="user-menu">
-            <button class="btn-theme-toggle"><i class="fas fa-moon"></i></button>
             <div class="user-avatar">
                 <i class="fas fa-user-circle"></i>
             </div>
@@ -198,7 +234,7 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <div class="energy-container">
+        <div class="container">
             <!-- Consumption Analysis Section -->
             <section class="consumption-section">
                 <div class="section-header">
