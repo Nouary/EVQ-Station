@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVQ Station - Optimisation Énergétique</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/energy.css">
+    <style>
+        body {
+            background: #000;
+            color: #e0e6ed;
+        }
+        .energy-container {
+            background: rgba(24,28,37,0.85);
+            border-radius: 32px;
+            box-shadow: 0 8px 40px 0 rgba(20,52,92,0.18);
+            padding: 60px 40px;
+            margin-top: 80px;
+            margin-bottom: 40px;
+        }
+        .consumption-section, .suggestions-card, .alerts-card, .stats-section, .export-section {
+            background: rgba(255,255,255,0.97);
+            border-radius: 24px;
+            box-shadow: 0 4px 32px 0 rgba(20,52,92,0.10);
+            padding: 36px 32px 32px 32px;
+            margin-bottom: 40px;
+            border: 1.5px solid #d1d9e6;
+        }
+        .section-title {
+            color: #0a2342;
+            font-size: 1.7rem;
+            font-weight: 800;
+            margin-bottom: 0.5em;
+        }
+        .time-btn {
+            background: #e3eafc;
+            color: #0a2342;
+            border: none;
+            font-weight: 700;
+            border-radius: 12px;
+            padding: 10px 22px;
+            margin-right: 8px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .time-btn.active, .time-btn:hover {
+            background: linear-gradient(90deg, #00eaff 0%, #00ffb3 100%);
+            color: #181c25;
+        }
+        .chart-container {
+            background: #f7faff;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+            margin-bottom: 40px;
+        }
+        .chart-legend .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .suggestion-item {
+            background: linear-gradient(90deg, #e3fcec 0%, #eaf6fb 100%);
+            color: #0a2342;
+        }
+        .btn-suggestion.btn-apply {
+            background: linear-gradient(90deg, #00eaff 0%, #00ffb3 100%);
+            color: #181c25;
+            font-weight: 700;
+            border: none;
+        }
+        .btn-suggestion.btn-details {
+            background: #fff;
+            color: #0a2342;
+            border: 1.5px solid #00eaff;
+        }
+        .alert-item {
+            background: linear-gradient(90deg, #fffbe6 0%, #fdeaea 100%);
+            color: #0a2342;
+        }
+        .alert-item.critical { border-left: 6px solid #e74c3c; }
+        .alert-item.warning { border-left: 6px solid #f7b731; }
+        .alert-item.info { border-left: 6px solid #00eaff; }
+        .stat-card {
+            background: linear-gradient(90deg, #e3eafc 0%, #f7faff 100%);
+            color: #0a2342;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px 0 rgba(20,52,92,0.07);
+        }
+        .stat-icon {
+            color: #00eaff;
+        }
+        .btn-export.btn-pdf {
+            background: linear-gradient(90deg, #e74c3c 0%, #f7b731 100%);
+            color: #fff;
+        }
+        .btn-export.btn-excel {
+            background: linear-gradient(90deg, #00ffb3 0%, #00eaff 100%);
+            color: #181c25;
+        }
+        @media (max-width: 1200px) {
+            .energy-container {
+                padding: 32px 10px;
+            }
+        }
+        @media (max-width: 768px) {
+            .energy-container {
+                padding: 16px 2vw;
+            }
+            .consumption-section, .suggestions-card, .alerts-card, .stats-section, .export-section {
+                padding: 18px 8px 18px 8px;
+            }
+        }
+
+        .spots-table-section {
+            margin-bottom: 32px;
+        }
+        .spots-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            background: #f7faff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px 0 rgba(20,52,92,0.07);
+        }
+        .spots-table th {
+            background: #00eaff;
+            color: #181c25;
+            font-weight: 800;
+        }
+        .spots-table td {
+            background: #fff;
+            color: #0a2342;
+        }
+        .status-badge {
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 6px 18px;
+        }
+        .status-badge.badge-available {
+            background: #e3fcec;
+            color: #00b894;
+            border: 1.5px solid #00b894;
+        }
+        .status-badge.badge-charging {
+            background: #e3eafc;
+            color: #0057ff;
+            border: 1.5px solid #0057ff;
+        }
+        .status-badge.badge-maintenance {
+            background: #fdeaea;
+            color: #e74c3c;
+            border: 1.5px solid #e74c3c;
+        }
+
+        input, select, textarea {
+            color: #000;
+        }
+
+        .suggestion-text h4 {
+            color: #0a2342;
+            font-weight: 900;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="nav-container">
+        <div class="logo-container">
+            <img src="assets/img/logo.png" alt="EVQ Logo" class="logo-image">
+        </div>
+        <div class="navbar">
+            <ul class="nav-links">
+                <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="control.html"><i class="fas fa-cog"></i> Contrôle</a></li>
+                <li><a href="bookings.html"><i class="fas fa-calendar-alt"></i> Réservations</a></li>
+                <li class="active"><a href="energy.html"><i class="fas fa-bolt"></i> Énergie</a></li>
+                <li><a href="reports.html"><i class="fas fa-chart-bar"></i> Rapports</a></li>
+                <li><a href="security.html"><i class="fas fa-shield-alt"></i> Sécurité</a></li>
+            </ul>
+        </div>
+        <div class="user-menu">
+            <button class="btn-theme-toggle"><i class="fas fa-moon"></i></button>
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="energy-container">
+            <!-- Consumption Analysis Section -->
+            <section class="consumption-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-chart-line"></i> Analyse de Consommation - ST-042 (Paris Centre)</h2>
+                    <div class="time-selector">
+                        <button class="time-btn active" data-period="hourly">Par heure</button>
+                        <button class="time-btn" data-period="daily">Par jour</button>
+                        <button class="time-btn" data-period="weekly">Par semaine</button>
+                    </div>
+                </div>
+                <!-- Tableau des spots de charge -->
+                <div class="spots-table-section">
+                    <table class="spots-table">
+                        <thead>
+                            <tr>
+                                <th>ID Spot</th>
+                                <th>État</th>
+                                <th>Consommation (kWh)</th>
+                                <th>Sessions aujourd'hui</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>SP-01</td><td><span class="status-badge badge-available">Disponible</span></td><td>12.3</td><td>4</td></tr>
+                            <tr><td>SP-02</td><td><span class="status-badge badge-charging">En charge</span></td><td>15.1</td><td>5</td></tr>
+                            <tr><td>SP-03</td><td><span class="status-badge badge-maintenance">Maintenance</span></td><td>0.0</td><td>0</td></tr>
+                            <tr><td>SP-04</td><td><span class="status-badge badge-available">Disponible</span></td><td>10.7</td><td>3</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="chart-container">
+                    <canvas id="consumptionChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: var(--off-peak-color);"></span>
+                        <span class="legend-label">Heures creuses</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: var(--standard-color);"></span>
+                        <span class="legend-label">Heures normales</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: var(--peak-color);"></span>
+                        <span class="legend-label">Heures de pointe</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: var(--renewable-color);"></span>
+                        <span class="legend-label">Énergie renouvelable</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Optimization Section -->
+            <section class="optimization-section">
+                <div class="suggestions-card">
+                    <h2 class="section-title"><i class="fas fa-lightbulb"></i> Suggestions d'Optimisation</h2>
+                    
+                    <div class="suggestion-item">
+                        <div class="suggestion-text">
+                            <h4>Activer tarif réduit 22h-6h</h4>
+                            <p>Pour la station ST-042 (Paris Centre) - 78% de capacité inutilisée</p>
+                        </div>
+                        <div class="suggestion-actions">
+                            <button class="btn-suggestion btn-apply">Appliquer</button>
+                            <button class="btn-suggestion btn-details">Détails</button>
+                        </div>
+                    </div>
+                    
+                    <div class="suggestion-item">
+                        <div class="suggestion-text">
+                            <h4>Promouvoir heures creuses</h4>
+                            <p>Envoyer notification aux utilisateurs fréquents avec offre spéciale</p>
+                        </div>
+                        <div class="suggestion-actions">
+                            <button class="btn-suggestion btn-apply">Appliquer</button>
+                            <button class="btn-suggestion btn-details">Détails</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alerts-card">
+                    <h2 class="section-title"><i class="fas fa-bell"></i> Alertes Énergétiques</h2>
+                    
+                    <div class="alert-item critical">
+                        <div class="alert-header">
+                            <i class="fas fa-exclamation-circle alert-icon"></i>
+                            <div>
+                                <h3 class="alert-title">Surcharge détectée</h3>
+                                <span class="alert-station">ST-042 (Paris Centre)</span>
+                            </div>
+                        </div>
+                        <p>La station a dépassé 95% de sa capacité maximale entre 18h et 19h.</p>
+                        <div class="alert-time">Aujourd'hui, 18:30</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Energy Statistics Section -->
+            <section class="stats-section">
+                <h2 class="section-title"><i class="fas fa-chart-pie"></i> Statistiques Énergétiques</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="stat-value">24.5 kWh</div>
+                        <div class="stat-label">Consommation moyenne/session</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-value">1h 22m</div>
+                        <div class="stat-label">Temps moyen de recharge</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-percentage"></i></div>
+                        <div class="stat-value">92%</div>
+                        <div class="stat-label">Rendement énergétique</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-solar-panel"></i></div>
+                        <div class="stat-value">35%</div>
+                        <div class="stat-label">Énergie renouvelable</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Export Section -->
+            <section class="export-section">
+                <h2 class="section-title"><i class="fas fa-file-export"></i> Générer un Rapport</h2>
+                
+                <div class="export-options">
+                    <button class="btn-export btn-pdf">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button class="btn-export btn-excel">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/energy.js"></script>
+    
+    <script>
+        // Initialize Consumption Chart
+        const ctx = document.getElementById('consumptionChart').getContext('2d');
+        const chartDataSets = {
+            hourly: [5, 3, 2, 8, 0, 0, 0, 0, 0, 0, 12, 15],
+            daily: [12, 18, 22, 30, 45, 60, 80],
+            weekly: [120, 140, 110, 160, 180, 130, 150]
+        };
+        const chartLabels = {
+            hourly: ['00h', '02h', '04h', '06h', '08h', '10h', '12h', '14h', '16h', '18h', '20h', '22h'],
+            daily: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+            weekly: ['Semaine 1', 'Semaine 2', 'Semaine 3', 'Semaine 4', 'Semaine 5', 'Semaine 6', 'Semaine 7']
+        };
+        const consumptionChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels.hourly,
+                datasets: [{
+                    label: 'Consommation',
+                    data: chartDataSets.hourly,
+                    backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Consommation (kWh)' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Heures de la journée' }
+                    }
+                },
+                plugins: {
+                    tooltip: { mode: 'index', intersect: false },
+                    legend: { display: false }
+                }
+            }
+        });
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const period = this.dataset.period;
+                consumptionChart.data.labels = chartLabels[period];
+                consumptionChart.data.datasets[0].data = chartDataSets[period];
+                consumptionChart.options.scales.x.title.text =
+                    period === 'hourly' ? 'Heures de la journée' :
+                    period === 'daily' ? 'Jours de la semaine' : 'Semaines';
+                consumptionChart.update();
+            });
+        });
+
+        // Theme toggle
+        document.querySelector('.btn-theme-toggle').addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.querySelector('.btn-theme-toggle i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+    </script>
+</body>
+</html>
