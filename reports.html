@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVQ - Rapports & Statistiques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <style>
+        :root {
+            --evq-primary: #2c7be5;
+            --evq-secondary: #6e84a3;
+            --evq-success: #00d97e;
+            --evq-danger: #e63757;
+            --evq-warning: #f6c343;
+            --evq-info: #39afd1;
+        }
+        
+        body {
+            background: linear-gradient(120deg, #0a2342 60%, #14345c 100%);
+            color: #e0e6ed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .sidebar {
+            background: rgba(24,28,37,0.95) !important;
+            color: #e0e6ed !important;
+            border-radius: 0 32px 32px 0;
+            box-shadow: 0 8px 40px 0 rgba(20,52,92,0.18);
+            height: 100vh;
+            position: fixed;
+        }
+        
+        .main-content {
+            background: rgba(24,28,37,0.85);
+            border-radius: 32px;
+            box-shadow: 0 8px 40px 0 rgba(20,52,92,0.18);
+            padding: 60px 40px;
+            margin-top: 80px;
+            margin-bottom: 40px;
+        }
+        
+        .card, .stat-card, .export-options, .tab-content {
+            background: rgba(255,255,255,0.97) !important;
+            border-radius: 24px !important;
+            box-shadow: 0 4px 32px 0 rgba(20,52,92,0.10) !important;
+            border: 1.5px solid #d1d9e6 !important;
+        }
+        
+        .card-header, .tab-content, .export-options {
+            color: #0a2342;
+        }
+        
+        .value, .label, .table th, .table td, .form-label, .nav-link, .tab-content, .badge, .btn, .progress, .recipient-badge {
+            color: #0a2342 !important;
+        }
+        
+        .table th {
+            background: #00eaff !important;
+            color: #181c25 !important;
+            font-weight: 800;
+        }
+        
+        .table td {
+            background: #fff !important;
+            color: #0a2342 !important;
+        }
+        
+        .btn-evq, .btn-primary, .btn-outline-primary {
+            background: linear-gradient(90deg, #00eaff 0%, #00ffb3 100%) !important;
+            color: #181c25 !important;
+            border: none !important;
+            font-weight: 700;
+            border-radius: 12px !important;
+        }
+        
+        .btn-evq:hover, .btn-primary:hover, .btn-outline-primary:hover {
+            background: linear-gradient(90deg, #00ffb3 0%, #00eaff 100%) !important;
+            color: #181c25 !important;
+        }
+        
+        .nav-tabs .nav-link.active {
+            border-bottom: 3px solid #00eaff !important;
+            color: #00eaff !important;
+            background: transparent !important;
+        }
+        
+        .nav-tabs .nav-link {
+            color: #7f8c8d !important;
+        }
+        
+        .progress-bar.bg-success {
+            background: linear-gradient(90deg, #00eaff 0%, #00ffb3 100%) !important;
+        }
+        
+        .badge.bg-success, .badge.bg-primary, .badge.bg-danger, .badge.bg-warning {
+            background: #00eaff !important;
+            color: #181c25 !important;
+            font-weight: 700;
+        }
+        
+        .logo-container {
+            background: transparent !important;
+        }
+        
+        .evq-logo {
+            filter: drop-shadow(0 6px 16px rgba(0,234,255,0.12));
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar col-md-2 d-none d-md-block">
+        <div class="logo-container">
+            <img src="https://via.placeholder.com/150x40?text=EVQ" alt="EVQ Logo" class="evq-logo">
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="#">Tableau de bord</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Stations</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="#">Rapports & Statistiques</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Utilisateurs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Tarification</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Paramètres</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Rapports & Statistiques</h2>
+            <div>
+                <button class="btn btn-evq" data-bs-toggle="modal" data-bs-target="#generateReportModal">
+                    <i class="fas fa-file-pdf me-2"></i>Générer un rapport
+                </button>
+            </div>
+        </div>
+
+        <!-- Date Range Selector -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <label for="dateRange" class="form-label">Période</label>
+                        <input type="text" class="form-control" id="dateRange" placeholder="Sélectionner une période">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="stationFilter" class="form-label">Station</label>
+                        <select class="form-select" id="stationFilter">
+                            <option selected>Toutes les stations</option>
+                            <option>Station Alpha</option>
+                            <option>Station Beta</option>
+                            <option>Station Gamma</option>
+                            <option>Station Delta</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button class="btn btn-evq w-100" id="applyFilters">
+                            <i class="fas fa-filter me-2"></i>Appliquer les filtres
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="value text-primary">1,248</div>
+                        <div class="label">Sessions totales</div>
+                        <div class="mt-2 text-success small">
+                            <i class="fas fa-arrow-up me-1"></i>12% vs mois précédent
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="value text-primary">€4,856</div>
+                        <div class="label">Revenus totaux</div>
+                        <div class="mt-2 text-success small">
+                            <i class="fas fa-arrow-up me-1"></i>8% vs mois précédent
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="value text-primary">96.2%</div>
+                        <div class="label">Taux de disponibilité</div>
+                        <div class="mt-2 text-danger small">
+                            <i class="fas fa-arrow-down me-1"></i>1.5% vs mois précédent
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="value text-primary">4.7/5</div>
+                        <div class="label">Satisfaction clients</div>
+                        <div class="mt-2 text-success small">
+                            <i class="fas fa-arrow-up me-1"></i>0.2 vs mois précédent
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs" id="reportTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab">Tableau de bord</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="export-tab" data-bs-toggle="tab" data-bs-target="#export" type="button" role="tab">Exportation</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="email-tab" data-bs-toggle="tab" data-bs-target="#email" type="button" role="tab">Configuration Email</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">Historique</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="reportTabsContent">
+            <!-- Dashboard Tab -->
+            <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="chart-container">
+                            <canvas id="sessionsChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="chart-container">
+                            <canvas id="revenueDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="hourlyUsageChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="stationPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Détail des stations</h5>
+                        <div>
+                            <span class="badge bg-success me-2"><i class="fas fa-circle me-1"></i>Opérationnel</span>
+                            <span class="badge bg-warning me-2"><i class="fas fa-circle me-1"></i>Maintenance</span>
+                            <span class="badge bg-danger"><i class="fas fa-circle me-1"></i>Panne</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Station</th>
+                                        <th>Statut</th>
+                                        <th>Sessions</th>
+                                        <th>Revenus</th>
+                                        <th>Disponibilité</th>
+                                        <th>EVQ Score</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Station Alpha</td>
+                                        <td><span class="station-status status-operational"></span>Opérationnel</td>
+                                        <td>342</td>
+                                        <td>€1,345</td>
+                                        <td>98.7%</td>
+                                        <td>
+                                            <div class="progress" style="height: 10px;">
+                                                <div class="progress-bar bg-success" role="progressbar" style="width: 92%" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <small class="text-muted">92/100</small>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">Détails</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Station Beta</td>
+                                        <td><span class="station-status status-operational"></span>Opérationnel</td>
+                                        <td>298</td>
+                                        <td>€1,210</td>
+                                        <td>97.2%</td>
+                                        <td>
+                                            <div class="progress" style="height: 10px;">
+                                                <div class="progress-bar bg-success" role="progressbar" style="width: 88%" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <small class="text-muted">88/100</small>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">Détails</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Station Gamma</td>
+                                        <td><span class="station-status status-maintenance"></span>Maintenance</td>
+                                        <td>276</td>
+                                        <td>€987</td>
+                                        <td>89.5%</td>
+                                        <td>
+                                            <div class="progress" style="height: 10px;">
+                                                <div class="progress-bar bg-warning" role="progressbar" style="width: 72%" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <small class="text-muted">72/100</small>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">Détails</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Station Delta</td>
+                                        <td><span class="station-status status-outage"></span>Panne</td>
+                                        <td>312</td>
+                                        <td>€1,314</td>
+                                        <td>82.3%</td>
+                                        <td>
+                                            <div class="progress" style="height: 10px;">
+                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <small class="text-muted">65/100</small>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">Détails</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Commentaires clients</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex mb-3">
+                            <div class="flex-shrink-0">
+                                <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle" width="50">
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6>Jean Dupont <small class="text-muted ms-2">- 15 Avr 2025</small></h6>
+                                <div class="mb-2">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                </div>
+                                <p>Excellente station, recharge rapide et emplacement pratique. Je recommande !</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex mb-3">
+                            <div class="flex-shrink-0">
+                                <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle" width="50">
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6>Marie Lambert <small class="text-muted ms-2">- 12 Avr 2025</small></h6>
+                                <div class="mb-2">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="far fa-star text-warning"></i>
+                                </div>
+                                <p>Bon service mais la station était occupée quand je suis arrivée. Plus de bornes seraient bienvenues.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle" width="50">
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6>Thomas Martin <small class="text-muted ms-2">- 8 Avr 2025</small></h6>
+                                <div class="mb-2">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="far fa-star text-warning"></i>
+                                    <i class="far fa-star text-warning"></i>
+                                </div>
+                                <p>La borne que j'ai utilisée était en panne pendant ma recharge. Le support a mis du temps à répondre.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Export Tab -->
+            <div class="tab-pane fade" id="export" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="export-options">
+                            <h5>Options d'export</h5>
+                            <div class="mb-3">
+                                <label class="form-label">Format</label>
+                                <select class="form-select">
+                                    <option>Excel (.xlsx)</option>
+                                    <option>CSV (.csv)</option>
+                                    <option>JSON (.json)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Type de données</label>
+                                <select class="form-select">
+                                    <option>Toutes les données</option>
+                                    <option>Réservations seulement</option>
+                                    <option>Incidents techniques</option>
+                                    <option>Consommation énergétique</option>
+                                    <option>Feedback utilisateur</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Station</label>
+                                <select class="form-select">
+                                    <option>Toutes les stations</option>
+                                    <option>Station Alpha</option>
+                                    <option>Station Beta</option>
+                                    <option>Station Gamma</option>
+                                    <option>Station Delta</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Période</label>
+                                <input type="text" class="form-control" id="exportDateRange" placeholder="Sélectionner une période">
+                            </div>
+                            <button class="btn btn-evq w-100">
+                                <i class="fas fa-download me-2"></i>Exporter les données
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Aperçu des données</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Session</th>
+                                                <th>Date</th>
+                                                <th>Utilisateur</th>
+                                                <th>Station</th>
+                                                <th>Durée</th>
+                                                <th>Énergie (kWh)</th>
+                                                <th>Coût</th>
+                                                <th>Statut</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>#EVQ-1245</td>
+                                                <td>15/04/2025 14:30</td>
+                                                <td>user@example.com</td>
+                                                <td>Station Alpha</td>
+                                                <td>45 min</td>
+                                                <td>24.5</td>
+                                                <td>€8.60</td>
+                                                <td><span class="badge bg-success">Terminée</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>#EVQ-1244</td>
+                                                <td>15/04/2025 13:15</td>
+                                                <td>user2@example.com</td>
+                                                <td>Station Beta</td>
+                                                <td>32 min</td>
+                                                <td>18.2</td>
+                                                <td>€6.40</td>
+                                                <td><span class="badge bg-success">Terminée</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>#EVQ-1243</td>
+                                                <td>15/04/2025 11:45</td>
+                                                <td>user3@example.com</td>
+                                                <td>Station Gamma</td>
+                                                <td>28 min</td>
+                                                <td>15.8</td>
+                                                <td>€5.50</td>
+                                                <td><span class="badge bg-danger">Annulée</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>#EVQ-1242</td>
+                                                <td>15/04/2025 10:20</td>
+                                                <td>user4@example.com</td>
+                                                <td>Station Delta</td>
+                                                <td>51 min</td>
+                                                <td>27.3</td>
+                                                <td>€9.20</td>
+                                                <td><span class="badge bg-success">Terminée</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>#EVQ-1241</td>
+                                                <td>15/04/2025 09:05</td>
+                                                <td>user5@example.com</td>
+                                                <td>Station Alpha</td>
+                                                <td>38 min</td>
+                                                <td>20.1</td>
+                                                <td>€7.10</td>
+                                                <td><span class="badge bg-success">Terminée</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Email Configuration Tab -->
+            <div class="tab-pane fade" id="email" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Configuration des emails automatiques</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Fréquence d'envoi</label>
+                                    <select class="form-select">
+                                        <option>Mensuel</option>
+                                        <option>Hebdomadaire</option>
+                                        <option>Trimestriel</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Jour d'envoi</label>
+                                    <select class="form-select">
+                                        <option>1er du mois</option>
+                                        <option>5 du mois</option>
+                                        <option>Dernier jour du mois</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Heure d'envoi</label>
+                                    <select class="form-select">
+                                        <option>8:00</option>
+                                        <option>9:00</option>
+                                        <option>10:00</option>
+                                        <option>11:00</option>
+                                    </select>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="enableAutoEmail" checked>
+                                    <label class="form-check-label" for="enableAutoEmail">Activer l'envoi automatique</label>
+                                </div>
+                                <button class="btn btn-evq">
+                                    <i class="fas fa-save me-2"></i>Enregistrer les paramètres
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Destinataires</h5>
+                                <button class="btn btn-sm btn-evq" data-bs-toggle="modal" data-bs-target="#addRecipientModal">
+                                    <i class="fas fa-plus me-1"></i>Ajouter
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="recipientsList">
+                                    <div class="recipient-badge">
+                                        admin@evq.com <span class="remove"><i class="fas fa-times"></i></span>
+                                    </div>
+                                    <div class="recipient-badge">
+                                        finance@evq.com <span class="remove"><i class="fas fa-times"></i></span>
+                                    </div>
+                                    <div class="recipient-badge">
+                                        tech@evq.com <span class="remove"><i class="fas fa-times"></i></span>
+                                    </div>
+                                    <div class="recipient-badge">
+                                        partner@example.com <span class="remove"><i class="fas fa-times"></i></span>
+                                    </div>
+                                    <div class="recipient-badge">
+                                        cityhall@ville.fr <span class="remove"><i class="fas fa-times"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Aperçu de l'email</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="border p-3 bg-light">
+                                    <h6>Objet: [EVQ] Rapport mensuel - Avril 2025</h6>
+                                    <hr>
+                                    <p>Bonjour,</p>
+                                    <p>Veuillez trouver ci-joint le rapport mensuel EVQ pour Avril 2025.</p>
+                                    <p><strong>Points clés:</strong></p>
+                                    <ul>
+                                        <li>1,248 sessions de recharge (+12% vs mars)</li>
+                                        <li>€4,856 de revenus générés (+8%)</li>
+                                        <li>Taux de disponibilité: 96.2% (-1.5%)</li>
+                                    </ul>
+                                    <p>Pour toute question, n'hésitez pas à nous contacter.</p>
+                                    <p>Cordialement,<br>L'équipe EVQ</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- History Tab -->
+            <div class="tab-pane fade" id="history" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Historique des rapports</h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-secondary me-2">
+                                <i class="fas fa-filter me-1"></i>Filtrer
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-download me-1"></i>Exporter
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Période</th>
+                                        <th>Généré par</th>
+                                        <th>Destinataires</th>
+                                        <th>Format</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>15/04/2025 10:30</td>
+                                        <td><span class="badge bg-primary">PDF</span></td>
+                                        <td>Avril 2025</td>
+                                        <td>admin@evq.com</td>
+                                        <td>5 destinataires</td>
+                                        <td>PDF + Excel</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-2">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>15/03/2025 09:15</td>
+                                        <td><span class="badge bg-primary">PDF</span></td>
+                                        <td>Mars 2025</td>
+                                        <td>system@evq.com</td>
+                                        <td>4 destinataires</td>
+                                        <td>PDF</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-2">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>14/02/2025 11:20</td>
+                                        <td><span class="badge bg-success">Excel</span></td>
+                                        <td>Janvier - Février 2025</td>
+                                        <td>finance@evq.com</td>
+                                        <td>2 destinataires</td>
+                                        <td>Excel</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-2">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>15/01/2025 08:45</td>
+                                        <td><span class="badge bg-primary">PDF</span></td>
+                                        <td>Décembre 2024</td>
+                                        <td>system@evq.com</td>
+                                        <td>5 destinataires</td>
+                                        <td>PDF</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-2">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>15/12/2024 10:10</td>
+                                        <td><span class="badge bg-primary">PDF</span></td>
+                                        <td>Novembre 2024</td>
+                                        <td>admin@evq.com</td>
+                                        <td>3 destinataires</td>
+                                        <td>PDF + CSV</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-2">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate Report Modal -->
+    <div class="modal fade" id="generateReportModal" tabindex="-1" aria-labelledby="generateReportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="generateReportModalLabel">Générer un rapport</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="reportType" class="form-label">Type de rapport</label>
+                                <select class="form-select" id="reportType">
+                                    <option selected>Mensuel</option>
+                                    <option>Hebdomadaire</option>
+                                    <option>Trimestriel</option>
+                                    <option>Personnalisé</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="reportPeriod" class="form-label">Période</label>
+                                <input type="text" class="form-control" id="reportPeriod" placeholder="Sélectionner une période">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="reportStations" class="form-label">Stations</label>
+                                <select class="form-select" id="reportStations" multiple>
+                                    <option selected>Toutes les stations</option>
+                                    <option>Station Alpha</option>
+                                    <option>Station Beta</option>
+                                    <option>Station Gamma</option>
+                                    <option>Station Delta</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Sections à inclure</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="includeSessions" checked>
+                                    <label class="form-check-label" for="includeSessions">Statistiques des sessions</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="includeRevenue" checked>
+                                    <label class="form-check-label" for="includeRevenue">Revenus générés</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="includeIncidents" checked>
+                                    <label class="form-check-label" for="includeIncidents">Incidents techniques</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="includeUsage" checked>
+                                    <label class="form-check-label" for="includeUsage">Utilisation horaire</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="includeFeedback" checked>
+                                    <label class="form-check-label" for="includeFeedback">Feedback utilisateurs</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="includeGreenEnergy" checked>
+                                    <label class="form-check-label" for="includeGreenEnergy">Énergie verte</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="reportFormat" class="form-label">Format</label>
+                                <select class="form-select" id="reportFormat">
+                                    <option selected>PDF</option>
+                                    <option>Excel</option>
+                                    <option>PDF + Excel</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="reportNotes" class="form-label">Notes/Observations</label>
+                        <textarea class="form-control" id="reportNotes" rows="3" placeholder="Ajoutez des observations ou recommandations pour ce rapport..."></textarea>
+                    </div>
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="sendEmail" checked>
+                        <label class="form-check-label" for="sendEmail">Envoyer par email aux destinataires configurés</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-evq">
+                        <i class="fas fa-file-pdf me-2"></i>Générer le rapport
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Recipient Modal -->
+    <div class="modal fade" id="addRecipientModal" tabindex="-1" aria-labelledby="addRecipientModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addRecipientModalLabel">Ajouter un destinataire</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="recipientEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="recipientEmail" placeholder="email@example.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="recipientName" class="form-label">Nom (optionnel)</label>
+                        <input type="text" class="form-control" id="recipientName" placeholder="Nom du destinataire">
+                    </div>
+                    <div class="mb-3">
+                        <label for="recipientType" class="form-label">Type</label>
+                        <select class="form-select" id="recipientType">
+                            <option selected>Administrateur</option>
+                            <option>Finance</option>
+                            <option>Technique</option>
+                            <option>Partenaire</option>
+                            <option>Municipalité</option>
+                        </select>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="receiveAllReports" checked>
+                        <label class="form-check-label" for="receiveAllReports">Recevoir tous les rapports</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-evq">Ajouter le destinataire</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        // Initialize date pickers
+        flatpickr("#dateRange", {
+            mode: "range",
+            locale: "fr",
+            dateFormat: "d/m/Y",
+            defaultDate: ["01/04/2025", "30/04/2025"]
+        });
+        
+        flatpickr("#exportDateRange", {
+            mode: "range",
+            locale: "fr",
+            dateFormat: "d/m/Y",
+            defaultDate: ["01/04/2025", "30/04/2025"]
+        });
+        
+        flatpickr("#reportPeriod", {
+            mode: "range",
+            locale: "fr",
+            dateFormat: "d/m/Y",
+            defaultDate: ["01/04/2025", "30/04/2025"]
+        });
+        
+        // Initialize charts
+        // Sessions Chart
+        const sessionsCtx = document.getElementById('sessionsChart').getContext('2d');
+        const sessionsChart = new Chart(sessionsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['1-7 Avr', '8-14 Avr', '15-21 Avr', '22-28 Avr'],
+                datasets: [
+                    {
+                        label: 'Sessions validées',
+                        data: [280, 320, 350, 298],
+                        backgroundColor: '#2c7be5',
+                        borderColor: '#2c7be5',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Sessions annulées',
+                        data: [12, 15, 8, 10],
+                        backgroundColor: '#e63757',
+                        borderColor: '#e63757',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Sessions de recharge par semaine',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Nombre de sessions'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Revenue Distribution Chart
+        const revenueCtx = document.getElementById('revenueDistributionChart').getContext('2d');
+        const revenueChart = new Chart(revenueCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Station Alpha', 'Station Beta', 'Station Gamma', 'Station Delta'],
+                datasets: [{
+                    data: [1345, 1210, 987, 1314],
+                    backgroundColor: [
+                        '#2c7be5',
+                        '#00d97e',
+                        '#f6c343',
+                        '#6e84a3'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Répartition des revenus',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+        
+        // Hourly Usage Chart
+        const hourlyCtx = document.getElementById('hourlyUsageChart').getContext('2d');
+        const hourlyChart = new Chart(hourlyCtx, {
+            type: 'line',
+            data: {
+                labels: ['00h', '02h', '04h', '06h', '08h', '10h', '12h', '14h', '16h', '18h', '20h', '22h'],
+                datasets: [{
+                    label: 'Utilisation moyenne',
+                    data: [5, 3, 2, 8, 25, 32, 28, 35, 42, 48, 32, 18],
+                    fill: true,
+                    backgroundColor: 'rgba(44, 123, 229, 0.2)',
+                    borderColor: '#2c7be5',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Utilisation horaire moyenne',
+                        font: {
+                            size: 16
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Nombre de sessions'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Station Performance Chart
+        const performanceCtx = document.getElementById('stationPerformanceChart').getContext('2d');
+        const performanceChart = new Chart(performanceCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Disponibilité', 'Revenus', 'Satisfaction', 'Sessions', 'Énergie verte', 'Maintenance'],
+                datasets: [
+                    {
+                        label: 'Station Alpha',
+                        data: [95, 90, 88, 92, 85, 78],
+                        backgroundColor: 'rgba(44, 123, 229, 0.2)',
+                        borderColor: '#2c7be5',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Moyenne réseau',
+                        data: [85, 80, 82, 78, 75, 82],
+                        backgroundColor: 'rgba(110, 132, 163, 0.2)',
+                        borderColor: '#6e84a3',
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Performance des stations (EVQ Score)',
+                        font: {
+                            size: 16
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        angleLines: {
+                            display: true
+                        },
+                        suggestedMin: 50,
+                        suggestedMax: 100
+                    }
+                }
+            }
+        });
+        
+        // Remove recipient badge
+        document.querySelectorAll('.recipient-badge .remove').forEach(item => {
+            item.addEventListener('click', event => {
+                event.target.closest('.recipient-badge').remove();
+            });
+        });
+    </script>
+</body>
+</html>
