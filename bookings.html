@@ -22,15 +22,6 @@
             --light-gray: #f5f7fa;
         }
 
-        .reservations-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 30px;
-        }
-
         /* Calendar Section */
         .calendar-section {
             display: flex;
@@ -233,7 +224,7 @@
 
         /* Responsive Design */
         @media (max-width: 1200px) {
-            .reservations-container {
+            .container {
                 grid-template-columns: 1fr;
             }
         }
@@ -306,7 +297,6 @@
             </ul>
         </div>
         <div class="user-menu">
-            <button class="btn-theme-toggle"><i class="fas fa-moon"></i></button>
             <div class="user-avatar">
                 <i class="fas fa-user-circle"></i>
             </div>
@@ -321,7 +311,7 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <div class="reservations-container">
+        <div class="container">
             <!-- Main Content -->
             <div class="calendar-section">
                 <!-- Statistics Panel -->
@@ -329,11 +319,11 @@
                     <h2><i class="fas fa-chart-pie"></i> Statistiques des Réservations</h2>
                     <div class="stats-grid">
                         <div class="stat-card">
-                            <div class="stat-value">142</div>
+                            <div class="stat-value">20</div>
                             <div class="stat-label">Réservations aujourd'hui</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value">8</div>
+                            <div class="stat-value">0</div>
                             <div class="stat-label">Annulations</div>
                         </div>
                         <div class="stat-card">
@@ -481,83 +471,113 @@
     <script src="assets/js/reservations.js"></script>
     
     <script>
-        // Exemple de données par spot
+        const spotColors = {
+            'SP-01': 'fc-event-confirmed',
+            'SP-02': 'fc-event-pending',
+            'SP-03': 'fc-event-extended',
+            'SP-04': 'fc-event-cancelled'
+        };
         const spotEvents = {
             'all': [
-                {
-                    title: 'Fatima B. - Tesla Model 3',
-                    start: '2025-04-15T10:00:00',
-                    end: '2025-04-15T11:00:00',
-                    extendedProps: {
-                        station: 'Station Alpha',
-                        status: 'confirmed'
-                    },
-                    className: 'fc-event-confirmed'
-                },
-                {
-                    title: 'Youssef M. - Renault Zoe',
-                    start: '2025-04-15T11:00:00',
-                    end: '2025-04-15T12:00:00',
-                    extendedProps: {
-                        station: 'Station Beta',
-                        status: 'pending'
-                    },
-                    className: 'fc-event-pending'
-                },
-                {
-                    title: 'Ahmed K. - Peugeot e-208',
-                    start: '2025-04-15T14:00:00',
-                    end: '2025-04-15T15:00:00',
-                    extendedProps: {
-                        station: 'Station Alpha',
-                        status: 'extended'
-                    },
-                    className: 'fc-event-extended'
-                },
-                {
-                    title: 'Sophie L. - Nissan Leaf',
-                    start: '2025-04-15T16:00:00',
-                    end: '2025-04-15T17:00:00',
-                    extendedProps: {
-                        station: 'Station Gamma',
-                        status: 'confirmed'
-                    },
-                    className: 'fc-event-confirmed'
-                }
+                // SP-01
+                { title: 'Fatima B. - Tesla Model 3', start: '2025-04-15T10:00:00', end: '2025-04-15T11:00:00', spot: 'SP-01', className: spotColors['SP-01'] },
+                { title: 'Karim Z. - BMW i3', start: '2025-04-15T09:00:00', end: '2025-04-15T10:00:00', spot: 'SP-01', className: spotColors['SP-01'] },
+                { title: 'Nadia F. - Peugeot e-208', start: '2025-04-15T13:00:00', end: '2025-04-15T14:00:00', spot: 'SP-01', className: spotColors['SP-01'] },
+                { title: 'Samir L. - Tesla Model Y', start: '2025-04-15T18:00:00', end: '2025-04-15T19:00:00', spot: 'SP-01', className: spotColors['SP-01'] },
+                // SP-02
+                { title: 'Youssef M. - Renault Zoe', start: '2025-04-15T11:00:00', end: '2025-04-15T12:00:00', spot: 'SP-02', className: spotColors['SP-02'] },
+                { title: 'Leila S. - Kia e-Niro', start: '2025-04-15T12:00:00', end: '2025-04-15T13:00:00', spot: 'SP-02', className: spotColors['SP-02'] },
+                { title: 'Benoit T. - Fiat 500e', start: '2025-04-15T15:00:00', end: '2025-04-15T16:00:00', spot: 'SP-02', className: spotColors['SP-02'] },
+                { title: 'Amina D. - Opel Corsa-e', start: '2025-04-15T17:00:00', end: '2025-04-15T18:00:00', spot: 'SP-02', className: spotColors['SP-02'] },
+                // SP-03
+                { title: 'Ahmed K. - Peugeot e-208', start: '2025-04-15T14:00:00', end: '2025-04-15T15:00:00', spot: 'SP-03', className: spotColors['SP-03'] },
+                { title: 'Omar T. - Hyundai Kona', start: '2025-04-15T15:00:00', end: '2025-04-15T16:00:00', spot: 'SP-03', className: spotColors['SP-03'] },
+                { title: 'Lucie P. - Citroën ë-C4', start: '2025-04-15T19:00:00', end: '2025-04-15T20:00:00', spot: 'SP-03', className: spotColors['SP-03'] },
+                { title: 'Hugo V. - DS 3 Crossback', start: '2025-04-15T20:00:00', end: '2025-04-15T21:00:00', spot: 'SP-03', className: spotColors['SP-03'] },
+                // SP-04
+                { title: 'Sophie L. - Nissan Leaf', start: '2025-04-15T16:00:00', end: '2025-04-15T17:00:00', spot: 'SP-04', className: spotColors['SP-04'] },
+                { title: 'Julie P. - VW ID.3', start: '2025-04-15T17:00:00', end: '2025-04-15T18:00:00', spot: 'SP-04', className: spotColors['SP-04'] },
+                { title: 'Paul G. - Honda e', start: '2025-04-15T21:00:00', end: '2025-04-15T22:00:00', spot: 'SP-04', className: spotColors['SP-04'] },
+                { title: 'Mina R. - Smart EQ', start: '2025-04-15T08:00:00', end: '2025-04-15T09:00:00', spot: 'SP-04', className: spotColors['SP-04'] }
             ],
             'SP-01': [
-                {
-                    title: 'Fatima B. - Tesla Model 3',
-                    start: '2025-04-15T10:00:00',
-                    end: '2025-04-15T11:00:00',
-                    className: 'fc-event-confirmed'
-                }
+                { title: 'Fatima B. - Tesla Model 3', start: '2025-04-15T10:00:00', end: '2025-04-15T11:00:00', className: spotColors['SP-01'] },
+                { title: 'Karim Z. - BMW i3', start: '2025-04-15T09:00:00', end: '2025-04-15T10:00:00', className: spotColors['SP-01'] },
+                { title: 'Nadia F. - Peugeot e-208', start: '2025-04-15T13:00:00', end: '2025-04-15T14:00:00', className: spotColors['SP-01'] },
+                { title: 'Samir L. - Tesla Model Y', start: '2025-04-15T18:00:00', end: '2025-04-15T19:00:00', className: spotColors['SP-01'] }
             ],
             'SP-02': [
-                {
-                    title: 'Youssef M. - Renault Zoe',
-                    start: '2025-04-15T11:00:00',
-                    end: '2025-04-15T12:00:00',
-                    className: 'fc-event-pending'
-                }
+                { title: 'Youssef M. - Renault Zoe', start: '2025-04-15T11:00:00', end: '2025-04-15T12:00:00', className: spotColors['SP-02'] },
+                { title: 'Leila S. - Kia e-Niro', start: '2025-04-15T12:00:00', end: '2025-04-15T13:00:00', className: spotColors['SP-02'] },
+                { title: 'Benoit T. - Fiat 500e', start: '2025-04-15T15:00:00', end: '2025-04-15T16:00:00', className: spotColors['SP-02'] },
+                { title: 'Amina D. - Opel Corsa-e', start: '2025-04-15T17:00:00', end: '2025-04-15T18:00:00', className: spotColors['SP-02'] }
             ],
             'SP-03': [
-                {
-                    title: 'Ahmed K. - Peugeot e-208',
-                    start: '2025-04-15T14:00:00',
-                    end: '2025-04-15T15:00:00',
-                    className: 'fc-event-extended'
-                }
+                { title: 'Ahmed K. - Peugeot e-208', start: '2025-04-15T14:00:00', end: '2025-04-15T15:00:00', className: spotColors['SP-03'] },
+                { title: 'Omar T. - Hyundai Kona', start: '2025-04-15T15:00:00', end: '2025-04-15T16:00:00', className: spotColors['SP-03'] },
+                { title: 'Lucie P. - Citroën ë-C4', start: '2025-04-15T19:00:00', end: '2025-04-15T20:00:00', className: spotColors['SP-03'] },
+                { title: 'Hugo V. - DS 3 Crossback', start: '2025-04-15T20:00:00', end: '2025-04-15T21:00:00', className: spotColors['SP-03'] }
             ],
             'SP-04': [
-                {
-                    title: 'Sophie L. - Nissan Leaf',
-                    start: '2025-04-15T16:00:00',
-                    end: '2025-04-15T17:00:00',
-                    className: 'fc-event-confirmed'
-                }
+                { title: 'Sophie L. - Nissan Leaf', start: '2025-04-15T16:00:00', end: '2025-04-15T17:00:00', className: spotColors['SP-04'] },
+                { title: 'Julie P. - VW ID.3', start: '2025-04-15T17:00:00', end: '2025-04-15T18:00:00', className: spotColors['SP-04'] },
+                { title: 'Paul G. - Honda e', start: '2025-04-15T21:00:00', end: '2025-04-15T22:00:00', className: spotColors['SP-04'] },
+                { title: 'Mina R. - Smart EQ', start: '2025-04-15T08:00:00', end: '2025-04-15T09:00:00', className: spotColors['SP-04'] }
             ]
         };
+
+        // Génère des réservations sur plusieurs jours pour chaque spot
+        function generateMultiDayEvents() {
+            const spots = ['SP-01', 'SP-02', 'SP-03', 'SP-04'];
+            const users = [
+                ['Fatima B.', 'Karim Z.', 'Nadia F.', 'Samir L.', 'Lina M.', 'Yacine T.'],
+                ['Youssef M.', 'Leila S.', 'Benoit T.', 'Amina D.', 'Sami K.', 'Claire V.'],
+                ['Ahmed K.', 'Omar T.', 'Lucie P.', 'Hugo V.', 'Sonia B.', 'Julien F.'],
+                ['Sophie L.', 'Julie P.', 'Paul G.', 'Mina R.', 'Rachid D.', 'Eva S.']
+            ];
+            const cars = [
+                ['Tesla Model 3', 'BMW i3', 'Peugeot e-208', 'Tesla Model Y', 'Renault Megane E-Tech', 'Fiat 500e'],
+                ['Renault Zoe', 'Kia e-Niro', 'Fiat 500e', 'Opel Corsa-e', 'Peugeot e-208', 'Hyundai Ioniq 5'],
+                ['Peugeot e-208', 'Hyundai Kona', 'Citroën ë-C4', 'DS 3 Crossback', 'Mazda MX-30', 'Mini SE'],
+                ['Nissan Leaf', 'VW ID.3', 'Honda e', 'Smart EQ', 'Audi Q4 e-tron', 'Skoda Enyaq']
+            ];
+            const spotColors = {
+                'SP-01': 'fc-event-confirmed',
+                'SP-02': 'fc-event-pending',
+                'SP-03': 'fc-event-extended',
+                'SP-04': 'fc-event-cancelled'
+            };
+            const events = [];
+            const startDate = new Date('2025-04-13T08:00:00');
+            for (let d = 0; d < 7; d++) { // 7 days
+                for (let s = 0; s < spots.length; s++) {
+                    for (let h = 8; h <= 20; h += 2) { // 8h à 20h, toutes les 2h
+                        const user = users[s][(d + h) % users[s].length];
+                        const car = cars[s][(d + h) % cars[s].length];
+                        const date = new Date(startDate);
+                        date.setDate(startDate.getDate() + d);
+                        date.setHours(h, 0, 0, 0);
+                        const end = new Date(date);
+                        end.setHours(h + 1);
+                        events.push({
+                            title: `${user} - ${car}`,
+                            start: date.toISOString().slice(0, 16),
+                            end: end.toISOString().slice(0, 16),
+                            spot: spots[s],
+                            className: spotColors[spots[s]]
+                        });
+                    }
+                }
+            }
+            return events;
+        }
+        // Fusionne les événements générés avec ceux existants
+        const multiDayEvents = generateMultiDayEvents();
+        spotEvents['all'] = spotEvents['all'].concat(multiDayEvents);
+        // Pour chaque spot, filtre les événements
+        ['SP-01','SP-02','SP-03','SP-04'].forEach(spot => {
+            spotEvents[spot] = spotEvents['all'].filter(ev => ev.spot === spot);
+        });
 
         // Initialisation du calendrier avec tous les spots
         let calendar;
