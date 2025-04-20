@@ -21,15 +21,7 @@
             --light-gray: #f5f7fa;
         }
 
-        .control-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 30px;
-        }
-
+        /* .control-container supprimé, on utilise .container global */
         .station-overview {
             background: white;
             border-radius: 12px;
@@ -39,8 +31,9 @@
 
         .station-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: flex-start;
+            gap: 18px;
             margin-bottom: 32px;
             padding-bottom: 18px;
             border-bottom: 1.5px solid #d1d9e6;
@@ -60,9 +53,10 @@
             border-radius: 22px;
             font-size: 1.1rem;
             font-weight: 700;
-            background: #e3fcec;
+            background: none;
             color: #0a8f5c;
-            border: 1.5px solid #0a8f5c;
+            border: none;
+            margin-left: 0;
         }
 
         .station-details {
@@ -314,7 +308,7 @@
         }
 
         @media (max-width: 1200px) {
-            .control-container {
+            .container {
                 grid-template-columns: 1fr;
             }
         }
@@ -440,8 +434,8 @@
         </div>
         <div class="navbar">
             <ul class="nav-links">
-                <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li class="active"><a href="control.html"><i class="fas fa-cog"></i> Contrôle</a></li>
+                <li class="active"><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="control.html"><i class="fas fa-cog"></i> Contrôle</a></li>
                 <li><a href="bookings.html"><i class="fas fa-calendar-alt"></i> Réservations</a></li>
                 <li><a href="energy.html"><i class="fas fa-bolt"></i> Énergie</a></li>
                 <li><a href="reports.html"><i class="fas fa-chart-bar"></i> Rapports</a></li>
@@ -449,12 +443,12 @@
             </ul>
         </div>
         <div class="user-menu">
-            <button class="btn-theme-toggle"><i class="fas fa-moon"></i></button>
             <div class="user-avatar">
                 <i class="fas fa-user-circle"></i>
             </div>
         </div>
     </nav>
+    <!-- End Navigation Bar -->
 
     <!-- Main Content -->
     <main class="main-content">
@@ -462,12 +456,14 @@
             <h1><i class="fas fa-cogs"></i> Contrôle de la station</h1>
             <p class="tagline">Surveillez, gérez et intervenez sur votre poste de charge en temps réel</p>
         </header>
-        <div class="control-container control-redesign">
+        <div class="container control-redesign">
             <div class="left-column">
                 <div class="station-overview card-glass">
                     <div class="station-header">
                         <h1 class="station-title">ST-042 - Paris Centre</h1>
-                        <span class="station-status status-available">Disponible</span>
+                        <span class="station-status status-available">
+                            Disponible
+                        </span>
                     </div>
                     <div class="station-details">
                         <div class="detail-item">
@@ -639,21 +635,9 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="assets/js/main.js"></script>
     <script src="assets/js/control.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     
     <script>
-        // Theme toggle
-        document.querySelector('.btn-theme-toggle').addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            const icon = document.querySelector('.btn-theme-toggle i');
-            if (document.body.classList.contains('dark-mode')) {
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            } else {
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-            }
-        });
-
         // Modal maintenance
         const modal = document.getElementById('maintenance-modal');
         const openBtn = document.querySelector('.add-maintenance .btn');
@@ -683,6 +667,127 @@
             modal.style.display = 'none';
             maintenanceForm.reset();
         });
+
+        // Ajout du message de confirmation et du bouton PDF pour la désactivation d'un spot
+        const confirmBtn = document.querySelector('.btn-danger');
+        confirmBtn.addEventListener('click', function() {
+            // Boîte de confirmation personnalisée
+            let modal = document.getElementById('disable-modal');
+            if (modal) modal.remove();
+            modal = document.createElement('div');
+            modal.id = 'disable-modal';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100vw';
+            modal.style.height = '100vh';
+            modal.style.background = 'rgba(20,36,60,0.35)';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.style.zIndex = '3000';
+            // Box
+            const box = document.createElement('div');
+            box.style.background = '#fff';
+            box.style.borderRadius = '18px';
+            box.style.boxShadow = '0 8px 40px 0 rgba(20,52,92,0.18)';
+            box.style.padding = '36px 32px 32px 32px';
+            box.style.minWidth = '320px';
+            box.style.maxWidth = '95vw';
+            box.style.width = '400px';
+            box.style.position = 'relative';
+            // Close btn
+            const closeBtn = document.createElement('span');
+            closeBtn.textContent = '×';
+            closeBtn.style.position = 'absolute';
+            closeBtn.style.top = '18px';
+            closeBtn.style.right = '24px';
+            closeBtn.style.fontSize = '2rem';
+            closeBtn.style.color = '#e74c3c';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.style.fontWeight = 'bold';
+            closeBtn.onclick = () => { modal.remove(); };
+            // Message
+            const msg = document.createElement('div');
+            msg.innerHTML = '<b>Voulez-vous vraiment désactiver ce spot ?</b>';
+            msg.style.color = '#0a2342';
+            msg.style.fontWeight = '600';
+            msg.style.fontSize = '1.1rem';
+            msg.style.marginBottom = '18px';
+            msg.style.lineHeight = '1.7';
+            // Boutons
+            const btns = document.createElement('div');
+            btns.style.display = 'flex';
+            btns.style.gap = '16px';
+            btns.style.marginBottom = '10px';
+            const confirmAction = document.createElement('button');
+            confirmAction.textContent = 'Confirmer';
+            confirmAction.className = 'btn btn-primary';
+            const denyAction = document.createElement('button');
+            denyAction.textContent = 'Refuser';
+            denyAction.className = 'btn btn-danger';
+            btns.appendChild(confirmAction);
+            btns.appendChild(denyAction);
+            // Assemble
+            box.appendChild(closeBtn);
+            box.appendChild(msg);
+            box.appendChild(btns);
+            modal.appendChild(box);
+            document.body.appendChild(modal);
+
+            // Actions
+            confirmAction.onclick = function() {
+                // ...message de succès comme avant...
+                const spotId = document.getElementById('spot-id').value;
+                const motif = document.getElementById('disable-reason').options[document.getElementById('disable-reason').selectedIndex].text;
+                const duree = document.getElementById('disable-duration').options[document.getElementById('disable-duration').selectedIndex].text;
+                const message = `\u2705 <b>Succès :</b><br>Le spot <b>${spotId}</b> a été <span style='color:#e67e22'>désactivé</span>.<br><b>Motif :</b> ${motif}<br><b>Durée :</b> ${duree}`;
+                msg.innerHTML = message;
+                btns.style.display = 'none';
+                // PDF btn
+                const pdfBtn = document.createElement('button');
+                pdfBtn.textContent = 'Télécharger le reçu PDF';
+                pdfBtn.className = 'btn btn-primary';
+                pdfBtn.onclick = function() {
+                    generateDisablePDF(spotId, motif, duree);
+                };
+                box.appendChild(pdfBtn);
+            };
+            denyAction.onclick = function() {
+                btns.style.display = 'none';
+                msg.innerHTML = '<b>Veuillez indiquer la raison du refus :</b>';
+                const reasonInput = document.createElement('textarea');
+                reasonInput.placeholder = 'Raison du refus...';
+                reasonInput.style.width = '100%';
+                reasonInput.style.margin = '12px 0';
+                reasonInput.style.borderRadius = '8px';
+                reasonInput.style.border = '1px solid #ccc';
+                reasonInput.style.padding = '8px';
+                const submitReason = document.createElement('button');
+                submitReason.textContent = 'Envoyer le refus';
+                submitReason.className = 'btn btn-primary';
+                submitReason.onclick = function() {
+                    msg.innerHTML = `<span style='color:#e74c3c;font-size:1.2em;'>⛔</span> <b>Refusé</b><br>La raison suivante sera affichée à l’utilisateur :<br><i>"${reasonInput.value}"</i>`;
+                    reasonInput.remove();
+                    submitReason.remove();
+                };
+                box.appendChild(reasonInput);
+                box.appendChild(submitReason);
+            };
+        });
+
+        // Génération du PDF (simple, texte brut)
+        function generateDisablePDF(spotId, motif, duree) {
+            const doc = new window.jsPDF();
+            doc.setFontSize(16);
+            doc.text('Reçu de Désactivation de Spot', 20, 20);
+            doc.setFontSize(12);
+            doc.text(`Spot: ${spotId}`, 20, 40);
+            doc.text(`Motif: ${motif}`, 20, 55);
+            doc.text(`Durée: ${duree}`, 20, 70);
+            doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 85);
+            doc.save(`recu_desactivation_${spotId}.pdf`);
+        }
     </script>
 </body>
 </html>
