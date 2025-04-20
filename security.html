@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVQ Station - Sécurité</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/security.css">
+</head>
+<body>
+    <!-- Background Shapes -->
+    <div class="background-shapes">
+        <div class="shape" style="width: 300px; height: 300px; background: #e74c3c; top: 10%; left: 5%;"></div>
+        <div class="shape" style="width: 400px; height: 400px; background: #3498db; top: 60%; left: 70%;"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-container">
+        <div class="logo-container">
+            <img src="assets/img/logo.png" alt="EVQ Logo" class="logo-image">
+        </div>
+        <div class="navbar">
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="control.html">Contrôle</a></li>
+                <li><a href="bookings.html">Réservations</a></li>
+                <li><a href="energy.html">Énergie</a></li>
+                <li><a href="reports.html">Rapports</a></li>
+                <li class="active"><a href="security.html">Sécurité</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <header>
+                <h1>Sécurité & Détection de Fraudes</h1>
+                <p class="tagline">Surveillance et prévention des activités suspectes</p>
+            </header>
+
+            <!-- Security Alerts -->
+            <section class="security-alerts">
+                <div class="alerts-header">
+                    <h2>Alertes de Sécurité</h2>
+                    <div class="alert-filters">
+                        <span class="filter-label">Filtrer par :</span>
+                        <button class="btn btn-sm btn-secondary active">Toutes</button>
+                        <button class="btn btn-sm btn-secondary">Critiques</button>
+                        <button class="btn btn-sm btn-secondary">Avertissements</button>
+                    </div>
+                </div>
+                
+                <div class="alert-list">
+                    <div class="alert-item critical">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-content">
+                            <h4>Utilisation 24/7 suspecte</h4>
+                            <p>La station ST-042 a été utilisée continuellement pendant 48h par le même véhicule.</p>
+                            <div class="alert-meta">
+                                <span class="alert-time">Aujourd'hui, 08:32</span>
+                                <span class="alert-station">ST-042 (Paris Centre)</span>
+                            </div>
+                        </div>
+                        <div class="alert-actions">
+                            <button class="btn btn-sm">Vérifier</button>
+                            <button class="btn btn-sm btn-secondary">Ignorer</button>
+                        </div>
+                    </div>
+                    
+                    <div class="alert-item warning">
+                        <div class="alert-icon">🔍</div>
+                        <div class="alert-content">
+                            <h4>Réservation frauduleuse suspectée</h4>
+                            <p>Le compte CL-78945 a réservé 12 créneaux consécutifs sur différentes stations.</p>
+                            <div class="alert-meta">
+                                <span class="alert-time">Hier, 15:47</span>
+                                <span class="alert-station">Multiples stations</span>
+                            </div>
+                        </div>
+                        <div class="alert-actions">
+                            <button class="btn btn-sm">Vérifier</button>
+                            <button class="btn btn-sm btn-secondary">Ignorer</button>
+                        </div>
+                    </div>
+                    
+                    <div class="alert-item">
+                        <div class="alert-icon">🔌</div>
+                        <div class="alert-content">
+                            <h4>Tentative de contournement de paiement</h4>
+                            <p>Détection d'une tentative de manipulation du système de paiement sur ST-078.</p>
+                            <div class="alert-meta">
+                                <span class="alert-time">18/04/2023, 22:15</span>
+                                <span class="alert-station">ST-078 (Lyon Part-Dieu)</span>
+                            </div>
+                        </div>
+                        <div class="alert-actions">
+                            <button class="btn btn-sm">Vérifier</button>
+                            <button class="btn btn-sm btn-secondary">Ignorer</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Fraud Detection -->
+            <section class="fraud-detection">
+                <h2>Détection de Fraudes</h2>
+                
+                <div class="fraud-types">
+                    <div class="fraud-type-card">
+                        <div class="fraud-icon">👤</div>
+                        <h4>Comptes Frauduleux</h4>
+                        <p>Détection de faux comptes et d'utilisation d'identités volées.</p>
+                        <div class="fraud-stats">
+                            <span class="stat">12 détections ce mois</span>
+                            <span class="trend up">+15%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="fraud-type-card">
+                        <div class="fraud-icon">⏱️</div>
+                        <h4>Temps de Recharge Abusif</h4>
+                        <p>Sessions prolongées sans réservation active.</p>
+                        <div class="fraud-stats">
+                            <span class="stat">8 détections ce mois</span>
+                            <span class="trend down">-5%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="fraud-type-card">
+                        <div class="fraud-icon">💳</div>
+                        <h4>Détournement Matériel</h4>
+                        <p>RFID clonés et manipulation des stations.</p>
+                        <div class="fraud-stats">
+                            <span class="stat">3 détections ce mois</span>
+                            <span class="trend up">+20%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Security Settings -->
+            <section class="security-settings">
+                <h2>Paramètres de Sécurité</h2>
+                
+                <div class="settings-grid">
+                    <div class="setting-card">
+                        <h4>Surveillance IoT</h4>
+                        <p>Activer la détection d'anomalies en temps réel</p>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-card">
+                        <h4>Notifications</h4>
+                        <p>Recevoir des alertes par email pour les activités suspectes</p>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-card">
+                        <h4>Vérification d'Identité</h4>
+                        <p>Exiger une vérification d'identité pour les nouvelles réservations</p>
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-card">
+                        <h4>Limite de Temps</h4>
+                        <p>Limiter les sessions de recharge à 4 heures maximum</p>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Security Logs -->
+            <section class="security-logs">
+                <div class="logs-header">
+                    <h2>Journal de Sécurité</h2>
+                    <button class="btn btn-secondary">Exporter les Logs</button>
+                </div>
+                
+                <div class="log-filters">
+                    <input type="text" placeholder="Rechercher dans les logs...">
+                    <select>
+                        <option>Tous les types</option>
+                        <option>Authentification</option>
+                        <option>Paiement</option>
+                        <option>Réservation</option>
+                    </select>
+                    <input type="date">
+                </div>
+                
+                <div class="log-entries">
+                    <div class="log-entry">
+                        <div class="log-time">20/04/2023 09:15:42</div>
+                        <div class="log-type authentication">AUTH</div>
+                        <div class="log-message">Tentative de connexion réussie - admin@evq.com</div>
+                        <div class="log-ip">192.168.1.45</div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-time">20/04/2023 08:32:18</div>
+                        <div class="log-type payment">PAYMENT</div>
+                        <div class="log-message">Paiement échoué - Carte refusée (CL-78945)</div>
+                        <div class="log-ip">78.245.32.110</div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-time">19/04/2023 23:45:05</div>
+                        <div class="log-type security">SECURITY</div>
+                        <div class="log-message">Tentative de manipulation détectée sur ST-078</div>
+                        <div class="log-ip">Local (station)</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/security.js"></script>
+</body>
+</html>
