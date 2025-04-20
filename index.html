@@ -204,7 +204,6 @@
             </ul>
         </div>
         <div class="user-menu">
-            <button class="btn-theme-toggle"><i class="fas fa-moon"></i></button>
             <div class="user-avatar">
                 <i class="fas fa-user-circle"></i>
             </div>
@@ -263,26 +262,6 @@
                 </div>
             </section>
 
-            <!-- Statistiques Rapides Section -->
-            <section class="stats-quick fade-in">
-                <div class="stat-quick">
-                    <div class="stat-quick-value">8</div>
-                    <div class="stat-quick-label">Disponibles</div>
-                </div>
-                <div class="stat-quick">
-                    <div class="stat-quick-value">3</div>
-                    <div class="stat-quick-label">Occupés</div>
-                </div>
-                <div class="stat-quick">
-                    <div class="stat-quick-value">1</div>
-                    <div class="stat-quick-label">Maintenance</div>
-                </div>
-                <div class="stat-quick">
-                    <div class="stat-quick-value">7</div>
-                    <div class="stat-quick-label">Sessions Aujourd'hui</div>
-                </div>
-            </section>
-
             <!-- Alerts Section -->
             <section class="alerts-section fade-in">
                 <h2><i class="fas fa-bell"></i> Alertes récentes</h2>
@@ -294,7 +273,7 @@
             </section>
 
             <!-- Occupancy Chart -->
-            <section class="chart-container fade-in">
+            <section class="chart-container fade-in" style="height: 370px; max-width: 100%;">
                 <div class="chart-header">
                     <h2><i class="fas fa-chart-bar"></i> Taux d'Occupation Quotidien</h2>
                     <div class="chart-options">
@@ -305,7 +284,7 @@
                         </select>
                     </div>
                 </div>
-                <canvas id="occupancyChart"></canvas>
+                <canvas id="occupancyChart" style="height: 100%; width: 100%;"></canvas>
             </section>
         </div>
     </main>
@@ -402,19 +381,6 @@
                 occupancyChart.options.scales.x.title.text = 'Jours du mois';
             }
             occupancyChart.update();
-        });
-
-        // Theme toggle
-        document.querySelector('.btn-theme-toggle').addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            const icon = document.querySelector('.btn-theme-toggle i');
-            if (document.body.classList.contains('dark-mode')) {
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            } else {
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-            }
         });
     </script>
 </body>
