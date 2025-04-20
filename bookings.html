@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVQ Station - Gestion des Réservations</title>
+    <!-- FullCalendar CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/reservations.css">
+    <style>
+        :root {
+            --primary-color: #1964a0;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+            --light-gray: #f5f7fa;
+        }
+
+        .reservations-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* Calendar Section */
+        .calendar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* Calendar View */
+        .calendar-view {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-title {
+            font-size: 1.3rem;
+            color: var(--secondary-color);
+        }
+
+        .calendar-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-switch {
+            display: flex;
+            background: var(--light-gray);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            padding: 8px 15px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .view-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        #calendar {
+            height: 600px;
+        }
+
+        /* Custom Calendar Event Colors */
+        .fc-event-confirmed {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .fc-event-pending {
+            background-color: var(--info-color);
+            border-color: var(--info-color);
+        }
+
+        .fc-event-cancelled {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .fc-event-extended {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+
+        /* Reservations Table */
+        .reservations-table {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-size: 1.3rem;
+            color: var(--secondary-color);
+        }
+
+        .table-search {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            width: 250px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: var(--light-gray);
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-confirmed { background: rgba(46, 204, 113, 0.1); color: var(--success-color); }
+        .badge-pending { background: rgba(52, 152, 219, 0.1); color: var(--info-color); }
+        .badge-cancelled { background: rgba(231, 76, 60, 0.1); color: var(--danger-color); }
+        .badge-extended { background: rgba(241, 196, 15, 0.1); color: var(--warning-color); }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-table {
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .btn-edit {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--info-color);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-cancel {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-extend {
+            background: rgba(241, 196, 15, 0.1);
+            color: var(--warning-color);
+            border: 1px solid rgba(241, 196, 15, 0.3);
+        }
+
+        /* Statistics Panel */
+        .stats-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background: var(--light-gray);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .reservations-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .calendar-header, .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .table-search {
+                width: 100%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .reservations-header {
+                margin-top: 90px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .view-switch {
+                width: 100%;
+            }
+            
+            .view-btn {
+                flex: 1;
+                text-align: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .reservations-header {
+            text-align: center;
+            margin-top: 120px;
+            margin-bottom: 32px;
+        }
+
+        .main-content {
+            padding-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="nav-container">
+        <div class="logo-container">
+            <img src="assets/img/logo.png" alt="EVQ Logo" class="logo-image">
+        </div>
+        <div class="navbar">
+            <ul class="nav-links">
+                <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="control.html"><i class="fas fa-cog"></i> Contrôle</a></li>
+                <li class="active"><a href="bookings.html"><i class="fas fa-calendar-alt"></i> Réservations</a></li>
+                <li><a href="energy.html"><i class="fas fa-bolt"></i> Énergie</a></li>
+                <li><a href="reports.html"><i class="fas fa-chart-bar"></i> Rapports</a></li>
+                <li><a href="security.html"><i class="fas fa-shield-alt"></i> Sécurité</a></li>
+            </ul>
+        </div>
+        <div class="user-menu">
+            <button class="btn-theme-toggle"><i class="fas fa-moon"></i></button>
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="reservations-header">
+        <h1><i class="fas fa-calendar-alt"></i> Gestion des Réservations</h1>
+        <p class="tagline">Planifiez, modifiez et suivez vos réservations en toute simplicité</p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="reservations-container">
+            <!-- Main Content -->
+            <div class="calendar-section">
+                <!-- Statistics Panel -->
+                <div class="stats-panel">
+                    <h2><i class="fas fa-chart-pie"></i> Statistiques des Réservations</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">142</div>
+                            <div class="stat-label">Réservations aujourd'hui</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">8</div>
+                            <div class="stat-label">Annulations</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">78%</div>
+                            <div class="stat-label">Taux d'occupation</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">24</div>
+                            <div class="stat-label">Créneaux libres</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">1h22</div>
+                            <div class="stat-label">Durée moyenne</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar View -->
+                <div class="calendar-view">
+                    <div class="calendar-header">
+                        <h2 class="calendar-title"><i class="fas fa-calendar-alt"></i> Calendrier des Réservations</h2>
+                        <div class="calendar-actions">
+                            <select id="spot-filter" class="form-control" style="margin-right:12px;">
+                                <option value="all">Tous les spots</option>
+                                <option value="SP-01">SP-01</option>
+                                <option value="SP-02">SP-02</option>
+                                <option value="SP-03">SP-03</option>
+                                <option value="SP-04">SP-04</option>
+                            </select>
+                            <div class="view-switch">
+                                <button class="view-btn active" data-view="day">Jour</button>
+                                <button class="view-btn" data-view="week">Semaine</button>
+                                <button class="view-btn" data-view="month">Mois</button>
+                            </div>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Nouvelle réservation
+                            </button>
+                        </div>
+                    </div>
+                    <div id="calendar"></div>
+                </div>
+
+                <!-- Reservations Table -->
+                <div class="reservations-table">
+                    <div class="table-header">
+                        <h2 class="table-title"><i class="fas fa-list"></i> Liste des Réservations</h2>
+                        <input type="text" class="table-search" placeholder="Rechercher...">
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Heure</th>
+                                <th>Utilisateur</th>
+                                <th>État</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>15/04/2025</td>
+                                <td>10h00-11h</td>
+                                <td>Fatima B.</td>
+                                <td><span class="status-badge badge-confirmed">Confirmée</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="btn-table btn-edit"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-table btn-cancel"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>15/04/2025</td>
+                                <td>11h00-12h</td>
+                                <td>Youssef M.</td>
+                                <td><span class="status-badge badge-pending">En attente</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="btn-table btn-edit"><i class="fas fa-check"></i></button>
+                                        <button class="btn-table btn-cancel"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>15/04/2025</td>
+                                <td>14h00-15h</td>
+                                <td>Ahmed K.</td>
+                                <td><span class="status-badge badge-extended">Prolongée</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="btn-table btn-edit"><i class="fas fa-stop"></i></button>
+                                        <button class="btn-table btn-extend"><i class="fas fa-clock"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>15/04/2025</td>
+                                <td>16h00-17h</td>
+                                <td>Sophie L.</td>
+                                <td><span class="status-badge badge-confirmed">Confirmée</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="btn-table btn-edit"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-table btn-cancel"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>15/04/2025</td>
+                                <td>18h00-19h</td>
+                                <td>Jean D.</td>
+                                <td><span class="status-badge badge-cancelled">Annulée</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="btn-table btn-edit"><i class="fas fa-eye"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Reservation Modal -->
+    <div class="modal" id="reservationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modifier Réservation</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Modal content would be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/fr.min.js"></script>
+    <!-- Custom JS -->
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/reservations.js"></script>
+    
+    <script>
+        // Exemple de données par spot
+        const spotEvents = {
+            'all': [
+                {
+                    title: 'Fatima B. - Tesla Model 3',
+                    start: '2025-04-15T10:00:00',
+                    end: '2025-04-15T11:00:00',
+                    extendedProps: {
+                        station: 'Station Alpha',
+                        status: 'confirmed'
+                    },
+                    className: 'fc-event-confirmed'
+                },
+                {
+                    title: 'Youssef M. - Renault Zoe',
+                    start: '2025-04-15T11:00:00',
+                    end: '2025-04-15T12:00:00',
+                    extendedProps: {
+                        station: 'Station Beta',
+                        status: 'pending'
+                    },
+                    className: 'fc-event-pending'
+                },
+                {
+                    title: 'Ahmed K. - Peugeot e-208',
+                    start: '2025-04-15T14:00:00',
+                    end: '2025-04-15T15:00:00',
+                    extendedProps: {
+                        station: 'Station Alpha',
+                        status: 'extended'
+                    },
+                    className: 'fc-event-extended'
+                },
+                {
+                    title: 'Sophie L. - Nissan Leaf',
+                    start: '2025-04-15T16:00:00',
+                    end: '2025-04-15T17:00:00',
+                    extendedProps: {
+                        station: 'Station Gamma',
+                        status: 'confirmed'
+                    },
+                    className: 'fc-event-confirmed'
+                }
+            ],
+            'SP-01': [
+                {
+                    title: 'Fatima B. - Tesla Model 3',
+                    start: '2025-04-15T10:00:00',
+                    end: '2025-04-15T11:00:00',
+                    className: 'fc-event-confirmed'
+                }
+            ],
+            'SP-02': [
+                {
+                    title: 'Youssef M. - Renault Zoe',
+                    start: '2025-04-15T11:00:00',
+                    end: '2025-04-15T12:00:00',
+                    className: 'fc-event-pending'
+                }
+            ],
+            'SP-03': [
+                {
+                    title: 'Ahmed K. - Peugeot e-208',
+                    start: '2025-04-15T14:00:00',
+                    end: '2025-04-15T15:00:00',
+                    className: 'fc-event-extended'
+                }
+            ],
+            'SP-04': [
+                {
+                    title: 'Sophie L. - Nissan Leaf',
+                    start: '2025-04-15T16:00:00',
+                    end: '2025-04-15T17:00:00',
+                    className: 'fc-event-confirmed'
+                }
+            ]
+        };
+
+        // Initialisation du calendrier avec tous les spots
+        let calendar;
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridDay',
+                locale: 'fr',
+                headerToolbar: false,
+                allDaySlot: false,
+                slotDuration: '00:15:00',
+                slotMinTime: '07:00:00',
+                slotMaxTime: '22:00:00',
+                editable: true,
+                eventResizableFromStart: true,
+                events: spotEvents['all'],
+                eventDrop: function(info) {
+                    // Handle event dragging
+                    console.log('Event moved from', info.oldEvent.start, 'to', info.event.start);
+                },
+                eventResize: function(info) {
+                    // Handle event resizing
+                    console.log('Event duration changed from', info.oldEvent.end, 'to', info.event.end);
+                },
+                eventClick: function(info) {
+                    // Open modal when event is clicked
+                    openReservationModal(info.event);
+                },
+                dateClick: function(info) {
+                    // Create new reservation on empty slot click
+                    console.log('New reservation at', info.dateStr);
+                }
+            });
+            calendar.render();
+
+            // View switch buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const view = this.dataset.view;
+                    calendar.changeView(
+                        view === 'day' ? 'timeGridDay' : 
+                        view === 'week' ? 'timeGridWeek' : 'dayGridMonth'
+                    );
+                });
+            });
+
+            // Filtre par spot
+            document.getElementById('spot-filter').addEventListener('change', function() {
+                const spot = this.value;
+                calendar.removeAllEvents();
+                (spotEvents[spot] || []).forEach(ev => calendar.addEvent(ev));
+            });
+
+            // Button functionalities
+            const editButtons = document.querySelectorAll('.btn-edit');
+            const cancelButtons = document.querySelectorAll('.btn-cancel');
+            const extendButtons = document.querySelectorAll('.btn-extend');
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    alert('Modifier la réservation');
+                });
+            });
+
+            cancelButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')) {
+                        alert('Réservation annulée');
+                    }
+                });
+            });
+
+            extendButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    alert('Prolonger la réservation');
+                });
+            });
+        });
+
+        function openReservationModal(event) {
+            // This would be populated with real event data
+            document.getElementById('reservationModal').style.display = 'block';
+        }
+
+        // Close modal
+        document.querySelector('.close-modal').addEventListener('click', () => {
+            document.getElementById('reservationModal').style.display = 'none';
+        });
+
+        // Theme toggle
+        document.querySelector('.btn-theme-toggle').addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.querySelector('.btn-theme-toggle i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+    </script>
+</body>
+</html>
